@@ -1,2 +1,8 @@
+# Scala stuff
 *.class
 *.log
+*/target
+*/project
+
+# Intellij IDEA files
+*/.idea
