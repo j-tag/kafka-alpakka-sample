@@ -8,6 +8,7 @@ v1.0, 2019-05-10
 :icons: font
 :experimental: true
 
+image::misc/kafka-alpakka-sample.png[Sample Run]
 
 == Quick Start
 
