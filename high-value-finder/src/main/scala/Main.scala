@@ -15,21 +15,25 @@ object Main {
 
     println("Hi, This software will read messages from Kafka broker and then shows the high amount population mid points.")
 
+    // Actor system and materializer needed by Akka streams
     println("Creating Akka actor system and materializer ...")
     implicit val system: ActorSystem = ActorSystem("highValueFinderSystem")
     implicit val materializer: Materializer = ActorMaterializer()
 
+    // Kafka options
     val bootstrapServers = "localhost:9094"
     val topic = "insurance-fl"
 
     println("Initializing Kafka consumer ...")
 
+    // Consumer settings are used by Alpakka Kafka extension
     val config = system.settings.config.getConfig("akka.kafka.consumer")
     val consumerSettings =
       ConsumerSettings(config, new StringDeserializer, new StringDeserializer)
         .withBootstrapServers(bootstrapServers)
         .withGroupId("group1")
 
+    // Spray JSON attribute to resume on errors
     val resumeOnParsingException = ActorAttributes.withSupervisionStrategy {
       new akka.japi.function.Function[Throwable, Supervision.Directive] {
         override def apply(t: Throwable): Supervision.Directive = t match {
@@ -40,6 +44,7 @@ object Main {
     }
 
     println("Reading messages ...")
+    // Connect streams
     val consumer = Consumer
       .plainSource(consumerSettings, Subscriptions.topics(topic))
       .map { consumerRecord =>
