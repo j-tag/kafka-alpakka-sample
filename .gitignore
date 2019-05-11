@@ -6,3 +6,6 @@
 
 # Intellij IDEA files
 */.idea
+
+# Custom data file for web map
+/web/eqSiteLimit-map-view/fl-insurance-locations.geojson
