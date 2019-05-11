@@ -18,10 +18,12 @@ object Main {
 
     println("Hi, This software will read messages from Kafka broker and then saves them to database.")
 
+    // Startup actor system
     println("Creating Akka actor system and materializer ...")
     implicit val system: ActorSystem = ActorSystem("databaseSaverSystem")
     implicit val materializer: Materializer = ActorMaterializer()
 
+    // Kafka options
     val bootstrapServers = "localhost:9094"
     val topic = "insurance-fl"
 
@@ -33,6 +35,7 @@ object Main {
         .withBootstrapServers(bootstrapServers)
         .withGroupId("group3")
 
+    // Ignore parsing errors in Spray JSON
     val resumeOnParsingException = ActorAttributes.withSupervisionStrategy {
       new akka.japi.function.Function[Throwable, Supervision.Directive] {
         override def apply(t: Throwable): Supervision.Directive = t match {
@@ -42,6 +45,7 @@ object Main {
       }
     }
 
+    // MongoDB connection settings
     println("Connecting to MongoDB ...")
     val codecRegistry = fromRegistries(fromProviders(classOf[InsuranceItem]), fromProviders(classOf[Point]),
       DEFAULT_CODEC_REGISTRY)
@@ -53,6 +57,7 @@ object Main {
     val insuranceCollection = db.getCollection("fl", classOf[InsuranceItem])
       .withCodecRegistry(codecRegistry)
 
+    // Insert consumed item to fl collection in database
     println("Reading messages ...")
     val consumer = Consumer
       .plainSource(consumerSettings, Subscriptions.topics(topic))
@@ -63,6 +68,7 @@ object Main {
         println("Saving item in database: " + insuranceItem)
         insuranceItem
       }
+      .withAttributes(resumeOnParsingException)
       .runWith(MongoSink.insertOne(insuranceCollection))
 
   }
