@@ -1,0 +1,8 @@
+version: '3.2'
+services:
+  nginx:
+    image: nginx:1.15.12
+    ports:
+      - "46985:80"
+    volumes:
+      - ../web/eqSiteLimit-map-view/:/usr/share/nginx/html:roz
