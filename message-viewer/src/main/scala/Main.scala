@@ -10,10 +10,12 @@ object Main {
 
     println("Hi, This software will read messages from Kafka broker and displays them.")
 
+    // Start actor system
     println("Creating Akka actor system and materializer ...")
     implicit val system: ActorSystem = ActorSystem("messageViewerSystem")
     implicit val materializer: Materializer = ActorMaterializer()
 
+    // Kafka consumer options
     val bootstrapServers = "localhost:9094"
     val topic = "insurance-fl"
 
@@ -25,6 +27,7 @@ object Main {
         .withBootstrapServers(bootstrapServers)
         .withGroupId("group2")
 
+    // Print all messages from Kafka source
     println("Reading messages ...")
     val consumer = Consumer
       .plainSource(consumerSettings, Subscriptions.topics(topic))
