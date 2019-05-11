@@ -10,6 +10,8 @@ v1.0, 2019-05-10
 
 image::misc/kafka-alpakka-sample.png[Sample Run]
 
+image::misc/fl-insurance-mapbox.png[Map view]
+
 == Quick Start
 
 To use this project we need some tools to be running first.
@@ -18,11 +20,38 @@ To use this project we need some tools to be running first.
 
 First we need Kafka server to be running on port `9094` and we need a topic named `insurance-fl`. We use this topic to broadcast our messages.
 
+You can use provided Docker stack file in `docker-stacks` directory to run a local Kafka server using Docker:
+
+[source, bash]
+----
+docker stack deploy -c ./kafka-docker-stack.yml kafka
+----
+
 === MongoDB Server
 
 One of our consumer apps need to connect to MongoDB server to save its data. So we should provide a MongoDB server available at port `27017`.
 
 For credentials I am using a dummy username and password which is `hesam` and `secret` for a database named `insurance`. But you may probably change these values which are available at the `Main.scala` file in `database-saver` project.
+
+You can use provided Docker stack file in `docker-stacks` directory to run a local MongoDB server using Docker:
+
+[source, bash]
+----
+docker stack deploy -c ./mongodb-docker-stack.yml mongo
+----
+
+=== Web Server
+
+In order to using the web view functionaly which will show a heatmap in browser, we need to run a local server. Also you need to provide a _Mapbox_ API key to enable this functionality.
+
+To obtain Mapbox API key head up to https://mapbox.com to create an account and generate API key. You should place this key in the `web/eqSiteLimit-map-view/index.html` file.
+
+Then we need a local server that you can use provided Docker stack file in `docker-stacks` directory to run a local _Nginx_ server at port `46985` using Docker:
+
+[source, bash]
+----
+docker stack deploy -c ./nginx-docker-stack.yml nginx
+----
 
 === Sample File
 
@@ -37,6 +66,7 @@ NOTE: We can run projects through terminal or through IDE. I am usin Intellij ID
     * `message-viewer` will show any message that it will receive.
     * `high-value-finder` will show any insurance item that have an `eqSiteLimit` value of more than *50000*.
     * `database-saver` will save everything that it will receive, to database in a collection named `fl`.
+    * `heatmap-data-calculator` will generate a _.geojson_ file at `web/eqSiteLimit-map-view/fl-insurance-locations.geojson` which will be used by Mapbox to show a heatmap in browser.
 
 All of these consumers will receive their data from a topic named `insurance-fl` from Kafka broker.
 
@@ -77,6 +107,11 @@ This extenstion will let us to connect to our MongoDB server with an interface l
 === Spray JSON
 
 We use this extension to serialize our data using JSON between applications.
+
+=== Mapbox
+
+We will use this service to show a heatmap in web browser so we can see a visualization of some of our data.
+
 
 == Contributing
 
